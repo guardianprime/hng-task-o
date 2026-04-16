@@ -1,5 +1,4 @@
 import express from "express";
-import fetch from "node-fetch";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -12,7 +11,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/api/classify", async (req, res) => {
+app.get("/", async (req, res) => {
   const { name } = req.query;
 
   if (name === undefined || name === "") {
@@ -92,10 +91,6 @@ app.use((req, res) => {
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(500).json({ status: "error", message: "Internal server error" });
-});
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
 });
 
 export default app;
