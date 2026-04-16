@@ -1,17 +1,19 @@
-import express from "express";
-
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.use((req, res, next) => {
+export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-  if (req.method === "OPTIONS") return res.sendStatus(204);
-  next();
-});
 
-app.get("/", async (req, res) => {
+  if (req.method === "OPTIONS") {
+    return res.status(204).end();
+  }
+
+  if (req.method !== "GET") {
+    return res.status(405).json({
+      status: "error",
+      message: "Method not allowed",
+    });
+  }
+
   const { name } = req.query;
 
   if (name === undefined || name === "") {
@@ -29,6 +31,7 @@ app.get("/", async (req, res) => {
   }
 
   let apiData;
+
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 5000);
@@ -37,6 +40,7 @@ app.get("/", async (req, res) => {
       `https://api.genderize.io/?name=${encodeURIComponent(name)}`,
       { signal: controller.signal },
     );
+
     clearTimeout(timeout);
 
     if (!response.ok) {
@@ -54,6 +58,7 @@ app.get("/", async (req, res) => {
         message: "Upstream API request timed out",
       });
     }
+
     return res.status(502).json({
       status: "error",
       message: "Failed to reach upstream API",
@@ -69,6 +74,7 @@ app.get("/", async (req, res) => {
 
   const probability = apiData.probability;
   const sample_size = apiData.count;
+
   const is_confident = probability >= 0.7 && sample_size >= 100;
 
   return res.status(200).json({
@@ -82,15 +88,4 @@ app.get("/", async (req, res) => {
       processed_at: new Date().toISOString(),
     },
   });
-});
-
-app.use((req, res) => {
-  res.status(404).json({ status: "error", message: "Route not found" });
-});
-
-app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).json({ status: "error", message: "Internal server error" });
-});
-
-export default app;
+}

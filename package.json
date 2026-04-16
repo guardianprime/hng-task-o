@@ -2,7 +2,6 @@
   "name": "hng-task-0",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "type": "module",
   "scripts": {
     "dev": "vercel dev"
@@ -10,8 +9,5 @@
   "keywords": [],
   "author": "gordian okon",
   "license": "ISC",
-  "packageManager": "pnpm@10.32.1",
-  "dependencies": {
-    "express": "^5.2.1"
-  }
+  "packageManager": "pnpm@10.32.1"
 }
